@@ -1,4 +1,4 @@
-package com.example.singingsword;
+package com.example.singingsword.sound;
 
 import static java.lang.Math.*;
 

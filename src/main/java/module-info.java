@@ -6,4 +6,6 @@ module com.example.singingsword {
 
     opens com.example.singingsword to javafx.fxml;
     exports com.example.singingsword;
+    exports com.example.singingsword.sound;
+    opens com.example.singingsword.sound to javafx.fxml;
 }

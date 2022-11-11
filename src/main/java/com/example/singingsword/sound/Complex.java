@@ -1,4 +1,4 @@
-package com.example.singingsword;
+package com.example.singingsword.sound;
 
 public class Complex {
 private final double re;   // the real part
