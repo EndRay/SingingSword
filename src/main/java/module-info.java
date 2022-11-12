@@ -10,4 +10,6 @@ module com.example.singingsword {
     opens com.example.singingsword.sound to javafx.fxml;
     exports com.example.singingsword.game;
     opens com.example.singingsword.game to javafx.fxml;
+    exports com.example.singingsword.game.engine;
+    opens com.example.singingsword.game.engine to javafx.fxml;
 }

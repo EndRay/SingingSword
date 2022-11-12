@@ -1,5 +1,6 @@
-package com.example.singingsword.game;
+package com.example.singingsword.game.engine;
 
+import com.example.singingsword.GameController;
 import com.example.singingsword.game.Enemy;
 import com.example.singingsword.sound.PitchExtractor;
 import javafx.application.Platform;
@@ -95,12 +96,13 @@ public class GameEngine {
         }
         for(int i = 0; i < enemies.size(); i++){
             if(enemies.get(i).getX() > 1) {
-                enemies.remove(i--);
                 System.out.println("Enemy escaped");
+                enemies.remove(i--);
+
             }
             else if(enemies.get(i).getX() > 0.8f && isSinging() && abs(enemies.get(i).getY() - swordPositionProperty.floatValue()) < 0.1f){
-                enemies.remove(i--);
                 System.out.println("Enemy killed");
+                enemies.remove(i--);
             }
         }
     }

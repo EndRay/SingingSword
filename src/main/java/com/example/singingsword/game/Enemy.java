@@ -1,5 +1,12 @@
 package com.example.singingsword.game;
 
+import com.example.singingsword.game.images.AnimatedImageProvider;
+import com.example.singingsword.game.images.ImageDrawer;
+import com.example.singingsword.game.images.SimpleImageDrawer;
+
+import java.awt.*;
+
+import static com.example.singingsword.game.images.SpriteUtils.getEnemySprite;
 import static java.lang.Math.PI;
 import static java.lang.Math.cos;
 
@@ -10,6 +17,7 @@ public class Enemy {
     private float yMoveAmplitude;
     private float speed;
     private float timePassed;
+    private ImageDrawer imageDrawer = getEnemySprite();
 
     public Enemy(){
         this.x = 0;
@@ -28,5 +36,8 @@ public class Enemy {
     public void move(float passed){
         this.x += this.speed * passed;
         this.timePassed += passed;
+    }
+    public ImageDrawer getImageDrawer(){
+        return imageDrawer;
     }
 }
