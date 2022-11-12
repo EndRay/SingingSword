@@ -8,4 +8,6 @@ module com.example.singingsword {
     exports com.example.singingsword;
     exports com.example.singingsword.sound;
     opens com.example.singingsword.sound to javafx.fxml;
+    exports com.example.singingsword.game;
+    opens com.example.singingsword.game to javafx.fxml;
 }
