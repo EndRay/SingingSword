@@ -1,4 +1,4 @@
-package com.example.singingsword.sound;
+package com.example.singingsword.game.engine.sound;
 
 import static java.lang.Math.*;
 

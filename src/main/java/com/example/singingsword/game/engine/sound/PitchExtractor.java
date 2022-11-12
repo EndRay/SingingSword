@@ -1,12 +1,10 @@
-package com.example.singingsword.sound;
-
-import javafx.beans.property.FloatProperty;
+package com.example.singingsword.game.engine.sound;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.example.singingsword.sound.FFT.ifft;
-import static com.example.singingsword.sound.Sound.SAMPLE_RATE;
+import static com.example.singingsword.game.engine.sound.FFT.ifft;
+import static com.example.singingsword.game.engine.sound.Sound.SAMPLE_RATE;
 import static java.lang.Math.*;
 
 public class PitchExtractor {

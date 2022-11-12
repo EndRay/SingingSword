@@ -1,8 +1,7 @@
 package com.example.singingsword.game.engine;
 
-import com.example.singingsword.GameController;
 import com.example.singingsword.game.Enemy;
-import com.example.singingsword.sound.PitchExtractor;
+import com.example.singingsword.game.engine.sound.PitchExtractor;
 import javafx.application.Platform;
 import javafx.beans.property.*;
 
@@ -11,7 +10,7 @@ import javax.sound.sampled.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.example.singingsword.sound.Sound.SAMPLE_RATE;
+import static com.example.singingsword.game.engine.sound.Sound.SAMPLE_RATE;
 import static java.lang.Math.*;
 import static java.util.Collections.unmodifiableList;
 
