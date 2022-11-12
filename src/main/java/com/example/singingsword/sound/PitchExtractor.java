@@ -85,7 +85,7 @@ public class PitchExtractor {
 
             boolean isRecognizable = false;
             float newPitch = -1;
-            for(float minPeakAmplitude = 0.5f; minPeakAmplitude < 2.5f; minPeakAmplitude += 0.5f){
+            for(float minPeakAmplitude = 1f; minPeakAmplitude < 2.5f; minPeakAmplitude *= 1.25f){
                 float tmpPitch = tryGetPitchFromFFT(complex, minPeakAmplitude);
                 if(tmpPitch < 0){
                     continue;
