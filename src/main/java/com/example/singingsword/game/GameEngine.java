@@ -26,11 +26,10 @@ public class GameEngine {
 
     private float lastT = System.nanoTime() / 1e9f;
     
-    private final PitchExtractor pitchExtractor = new PitchExtractor();
     private final int gameTickFrequency = 60;
     private final float gameTickPeriod = 1f / gameTickFrequency;
 
-    private final float spawnPeriod = 1f; // in seconds
+    private final float spawnPeriod = 2f; // in seconds
     private float nextSpawnTime = 0f;
 
     private final List<Enemy> enemies = new ArrayList<>();
@@ -95,11 +94,11 @@ public class GameEngine {
             enemy.move(passed);
         }
         for(int i = 0; i < enemies.size(); i++){
-            if(enemies.get(i).getX() > 1.2f) {
+            if(enemies.get(i).getX() > 1) {
                 enemies.remove(i--);
                 System.out.println("Enemy escaped");
             }
-            else if(enemies.get(i).getX() > 0.9f && isSinging() && abs(enemies.get(i).getY() - swordPositionProperty.floatValue()) < 0.1f){
+            else if(enemies.get(i).getX() > 0.8f && isSinging() && abs(enemies.get(i).getY() - swordPositionProperty.floatValue()) < 0.1f){
                 enemies.remove(i--);
                 System.out.println("Enemy killed");
             }
