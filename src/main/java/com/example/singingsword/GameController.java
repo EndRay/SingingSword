@@ -60,6 +60,10 @@ public class GameController {
                 floorSprite.drawImageLeftTop(gc, -floorPos, 0, t);
                 floorSprite.drawImageLeftTop(gc, -floorPos + floorSprite.getWidth(), 0, t);
 
+                for(Enemy enemy : gameEngine.getEnemies()){
+                    enemy.getImageDrawer().drawImage(gc, (float) ((1 - enemy.getX()) * canvas.getWidth()), (float) ((1 - enemy.getY()) * (canvas.getHeight() - unusedFloor)), t);
+                }
+
                 float opacity = 0f;
                 for(var swordPosition : swordPositionHistory){
                     gc.setGlobalAlpha(opacity);
@@ -75,9 +79,6 @@ public class GameController {
                     swordPositionHistory.removeFirst();
                 }
 
-                for(Enemy enemy : gameEngine.getEnemies()){
-                    enemy.getImageDrawer().drawImage(gc, (float) ((1 - enemy.getX()) * canvas.getWidth()), (float) ((1 - enemy.getY()) * (canvas.getHeight() - unusedFloor)), t);
-                }
                 for(int i = 0; i < maxHealth; i++){
                     hearts[i].drawImage(gc, (float) (canvas.getWidth() - 56 - 104*i), 64, t);
                 }
