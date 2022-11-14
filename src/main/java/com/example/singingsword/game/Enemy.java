@@ -16,6 +16,8 @@ public class Enemy {
     private EnemyType type;
     private ImageDrawer imageDrawer;
 
+    private float height = 0.02f;
+
     public Enemy(){
         this.x = 0;
         this.y = (float) Math.random() * 0.7f + 0.15f;
@@ -52,4 +54,13 @@ public class Enemy {
     public EnemyType getType() {
         return type;
     }
+
+    public Float getHitboxStart() {
+        return getY() - height/2;
+    }
+
+    public Float getHitboxEnd() {
+        return getY() + height/2;
+    }
+
 }

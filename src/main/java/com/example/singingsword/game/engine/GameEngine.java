@@ -2,13 +2,16 @@ package com.example.singingsword.game.engine;
 
 import com.example.singingsword.GameController;
 import com.example.singingsword.game.Enemy;
+import com.example.singingsword.game.EnemyType;
 import com.example.singingsword.game.engine.sound.PitchExtractor;
 import javafx.application.Platform;
 import javafx.beans.property.*;
 
 import javax.sound.sampled.*;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.List;
 
 import static com.example.singingsword.game.engine.sound.Sound.SAMPLE_RATE;
@@ -21,7 +24,6 @@ public class GameEngine {
     private final FloatProperty swordTargetPositionProperty = new SimpleFloatProperty();
     private final FloatProperty swordPositionProperty = new SimpleFloatProperty();
 
-    private final FloatProperty frequencyProperty = new SimpleFloatProperty();
     private final FloatProperty singingProperty = new SimpleFloatProperty();
 
     private final float minFrequency = 70;
@@ -39,6 +41,9 @@ public class GameEngine {
     private int health = maxHealth;
 
     private final List<Enemy> enemies = new ArrayList<>();
+
+    private final int swordPositionHistorySize = gameTickFrequency / 10;
+    private final Deque<Float> swordPositionHistory = new ArrayDeque<>();
 
     public GameEngine(GameController gameController) {
         this.gameController = gameController;
@@ -60,9 +65,20 @@ public class GameEngine {
                     int numBytesRead = line.read(data, 0, data.length);
                     pitchExtractor.feedRawData(data, numBytesRead);
                     if (pitchExtractor.isRecognizable()) {
-                        Platform.runLater(() -> frequencyProperty.set(pitchExtractor.getPitch()));
+                        Platform.runLater(() -> {
+                            float value = (float) (log(pitchExtractor.getPitch() / minFrequency) / log(maxFrequency / minFrequency));
+                            value = max(0, min(1, value));
+                            swordTargetPositionProperty.set(value);
+                            if(singingProperty.get() == 0) {
+                                swordPositionProperty.set(value);
+                                swordPositionHistory.clear();
+                            }
+                            singingProperty.set(pitchExtractor.getRecognizability());
+                        });
                     }
-                    Platform.runLater(() -> singingProperty.set(pitchExtractor.getRecognizability()));
+                    else {
+                        Platform.runLater(() -> singingProperty.set(pitchExtractor.getRecognizability()));
+                    }
 
                 }
             } catch (LineUnavailableException ex) {
@@ -71,12 +87,6 @@ public class GameEngine {
         });
         soundParsingThread.setDaemon(true);
         soundParsingThread.start();
-
-        frequencyProperty.addListener(((observable, oldValue, newValue) -> {
-            float value = (float) (log(newValue.floatValue() / minFrequency) / log(maxFrequency / minFrequency));
-            value = max(0, min(1, value));
-            swordTargetPositionProperty.set(value);
-        }));
     }
     
     private void moveSword(){
@@ -84,6 +94,10 @@ public class GameEngine {
         float current = swordPositionProperty.floatValue();
         float diff = target - current;
         swordPositionProperty.set(current + diff * 0.1f);
+        swordPositionHistory.addLast(swordPositionProperty.floatValue());
+        if(swordPositionHistory.size() > swordPositionHistorySize) {
+            swordPositionHistory.removeFirst();
+        }
     }
 
     private void spawnEnemy(){
@@ -100,6 +114,15 @@ public class GameEngine {
         if(health == 0)
             gameOver();
 
+    }
+
+    private boolean checkEnemyKill(Enemy enemy){
+        return ((swordPositionHistory.getFirst() < enemy.getHitboxStart() &&
+                        swordPositionHistory.getLast() > enemy.getHitboxEnd() &&
+                        (enemy.getType() == EnemyType.REGULAR || enemy.getType() == EnemyType.TOP_ARMORED)) ||
+                (swordPositionHistory.getLast() < enemy.getHitboxStart() &&
+                        swordPositionHistory.getFirst() > enemy.getHitboxEnd() &&
+                        (enemy.getType() == EnemyType.REGULAR || enemy.getType() == EnemyType.BOTTOM_ARMORED)));
     }
     
     private void gameTick(float t){
@@ -118,7 +141,7 @@ public class GameEngine {
                 enemies.remove(i--);
                 loseHealth();
             }
-            else if(enemies.get(i).getX() > 0.8f && isSinging() && abs(enemies.get(i).getY() - swordPositionProperty.floatValue()) < 0.1f){
+            else if(enemies.get(i).getX() > 0.8f && isSinging() && checkEnemyKill(enemies.get(i))){
                 System.out.println("Enemy killed");
                 enemies.remove(i--);
             }
