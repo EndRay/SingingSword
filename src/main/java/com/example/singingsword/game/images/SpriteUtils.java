@@ -1,6 +1,7 @@
 package com.example.singingsword.game.images;
 
 import com.example.singingsword.GameController;
+import com.example.singingsword.game.Enemy;
 import javafx.scene.image.Image;
 
 import java.io.FileInputStream;
@@ -12,13 +13,17 @@ import java.util.Objects;
 import java.util.Properties;
 
 public class SpriteUtils {
-    public static final ImageDrawer swordSprite = new SimpleImageDrawer(getImageProvider("sword", 128, 128));
-    public static final ImageDrawer backgroundSprite = new SimpleImageDrawer(getImageProvider("background", 960, 720));
-    public static final ImageDrawer floorSprite = new SimpleImageDrawer(getImageProvider("floor", 960, 720));
+    public static final ImageDrawer swordSprite = getImageDrawer(128, 128, "sword");
+    public static final ImageDrawer backgroundSprite = getImageDrawer(960, 720, "background");
+    public static final ImageDrawer floorSprite = getImageDrawer(960, 720, "floor");
 
 
-    public static ImageDrawer getEnemySprite() {
-        return new SimpleImageDrawer(getImageProvider("enemy", 128, 128));
+    public static ImageDrawer getEnemySprite(Enemy enemy) {
+        return switch (enemy.getType()) {
+            case REGULAR -> getImageDrawer(128, 128, "enemy");
+            case TOP_ARMORED -> getImageDrawer(128, 128, "enemy", "hat");
+            case BOTTOM_ARMORED -> getImageDrawer(128, 128, "enemy", "bottom_hat");
+        };
     }
 
     public static ImageDrawer getFilledHeartSprite() {
@@ -26,10 +31,7 @@ public class SpriteUtils {
     }
 
     public static ImageDrawer getLostHeartSprite() {
-        return new CombinedImageDrawer(List.of(
-                getImageProvider("damaged_hp1/beating", 128, 128),
-                getImageProvider("damaged_hp1/eye", 128, 128)
-        ));
+        return getImageDrawer(128, 128, "damaged_hp1/beating", "damaged_hp1/eye");
     }
 
     public static Image getImage(String name, int width, int height) {
@@ -90,5 +92,19 @@ public class SpriteUtils {
                 throw new IllegalArgumentException("No such sprite \"" + name + "\"");
             }
         }
+    }
+
+    public static ImageDrawer getImageDrawer(int width, int height, String... names){
+        if(names.length == 0){
+            throw new IllegalArgumentException("Cannot create ImageDrawer with no sprites");
+        }
+        if(names.length == 1){
+            return new SimpleImageDrawer(getImageProvider(names[0], width, height));
+        }
+        List<ImageProvider> providers = new ArrayList<>();
+        for(String name : names){
+            providers.add(getImageProvider(name, width, height));
+        }
+        return new CombinedImageDrawer(providers);
     }
 }

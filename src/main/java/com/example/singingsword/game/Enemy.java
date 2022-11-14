@@ -1,10 +1,6 @@
 package com.example.singingsword.game;
 
-import com.example.singingsword.game.images.AnimatedImageProvider;
 import com.example.singingsword.game.images.ImageDrawer;
-import com.example.singingsword.game.images.SimpleImageDrawer;
-
-import java.awt.*;
 
 import static com.example.singingsword.game.images.SpriteUtils.getEnemySprite;
 import static java.lang.Math.PI;
@@ -17,7 +13,8 @@ public class Enemy {
     private float yMoveAmplitude;
     private float speed;
     private float timePassed;
-    private ImageDrawer imageDrawer = getEnemySprite();
+    private EnemyType type;
+    private ImageDrawer imageDrawer;
 
     public Enemy(){
         this.x = 0;
@@ -25,6 +22,17 @@ public class Enemy {
         this.speed = (float) (0.1f + (Math.random()*2 - 1) * 0.05f);
         yMovePeriod = (float) (0.2f + (Math.random()*2 - 1) * 0.1f);
         yMoveAmplitude = (float) (0.05f + (Math.random()*2 - 1) * 0.02f);
+        {
+            var rnd = Math.random();
+            if(rnd < 0.1){
+                type = EnemyType.BOTTOM_ARMORED;
+            } else if(rnd < 0.2){
+                type = EnemyType.TOP_ARMORED;
+            } else {
+                type = EnemyType.REGULAR;
+            }
+        }
+        imageDrawer = getEnemySprite(this);
     }
 
     public float getX() {
@@ -39,5 +47,9 @@ public class Enemy {
     }
     public ImageDrawer getImageDrawer(){
         return imageDrawer;
+    }
+
+    public EnemyType getType() {
+        return type;
     }
 }
