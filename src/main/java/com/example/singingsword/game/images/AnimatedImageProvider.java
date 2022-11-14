@@ -9,6 +9,9 @@ public class AnimatedImageProvider implements ImageProvider{
     List<Image> images;
     float period;
 
+    boolean firstAsked = true;
+    float startT;
+
     public AnimatedImageProvider(List<Image> images, float period) {
         this.images = images;
         this.period = period;
@@ -27,7 +30,11 @@ public class AnimatedImageProvider implements ImageProvider{
 
     @Override
     public Image getImage(float t) {
-        return images.get((int)((t % period / period) * images.size()));
+        if(firstAsked){
+            startT = t;
+            firstAsked = false;
+        }
+        return images.get((int)(((t - startT) % period / period) * images.size()));
     }
 
     @Override

@@ -2,18 +2,17 @@ package com.example.singingsword;
 
 import com.example.singingsword.game.Enemy;
 import com.example.singingsword.game.engine.GameEngine;
-import com.example.singingsword.game.images.AnimatedImageProvider;
 import com.example.singingsword.game.images.ImageDrawer;
 import com.example.singingsword.game.images.SimpleImageDrawer;
 import javafx.animation.AnimationTimer;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.image.Image;
 import javafx.util.Pair;
 
 import java.util.*;
 
+import static com.example.singingsword.game.engine.GameEngine.maxHealth;
 import static com.example.singingsword.game.images.SpriteUtils.*;
 import static java.lang.Math.min;
 
@@ -21,15 +20,23 @@ public class GameController {
     @FXML
     private Canvas canvas;
 
-    private static final float backgroundMovingSpeed = 40f;
-    private static final float floorMovingSpeed = 100f;
+    private final static float backgroundMovingSpeed = 40f;
+    private final static float floorMovingSpeed = 100f;
 
-    private static final float unusedFloor = 120; // px
+    private final static float unusedFloor = 120; // px
 
-    final private GameEngine gameEngine = new GameEngine();
+    private final GameEngine gameEngine = new GameEngine(this);
 
+    private final ImageDrawer[] hearts = new ImageDrawer[maxHealth];
+
+    public void healthLost(int health) {
+        hearts[health] = getLostHeartSprite();
+    }
+    
     public void initialize() {
-
+        for (int i = 0; i < maxHealth; i++) {
+            hearts[i] = getFilledHeartSprite();
+        }
 
         GraphicsContext gc = canvas.getGraphicsContext2D();
 
@@ -37,6 +44,7 @@ public class GameController {
 
         Deque<Pair<Float, Float>> swordPositionHistory = new ArrayDeque<>();
         float swordPositionHistorySize = 10;
+
 
         AnimationTimer timer = new AnimationTimer() {
             @Override
@@ -69,8 +77,11 @@ public class GameController {
 
                 for(Enemy enemy : gameEngine.getEnemies()){
                     enemy.getImageDrawer().drawImage(gc, (float) ((1 - enemy.getX()) * canvas.getWidth()), (float) ((1 - enemy.getY()) * (canvas.getHeight() - unusedFloor)), t);
-                    //gc.drawImage(enemyImage, (1-enemy.getX()) * (canvas.getWidth() + enemyImage.getWidth()) - enemyImage.getWidth(), (1-enemy.getY()) * (canvas.getHeight() - unusedFloor) - enemyImage.getHeight()/2 - enemyImage.getHeight()/2);
                 }
+                for(int i = 0; i < maxHealth; i++){
+                    hearts[i].drawImage(gc, (float) (canvas.getWidth() - 56 - 104*i), 64, t);
+                }
+
             }
         };
         timer.start();

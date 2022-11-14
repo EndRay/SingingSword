@@ -1,5 +1,6 @@
 package com.example.singingsword.game.engine;
 
+import com.example.singingsword.GameController;
 import com.example.singingsword.game.Enemy;
 import com.example.singingsword.game.engine.sound.PitchExtractor;
 import javafx.application.Platform;
@@ -15,6 +16,8 @@ import static java.lang.Math.*;
 import static java.util.Collections.unmodifiableList;
 
 public class GameEngine {
+    private final GameController gameController;
+
     private final FloatProperty swordTargetPositionProperty = new SimpleFloatProperty();
     private final FloatProperty swordPositionProperty = new SimpleFloatProperty();
 
@@ -32,9 +35,13 @@ public class GameEngine {
     private final float spawnPeriod = 2f; // in seconds
     private float nextSpawnTime = 0f;
 
+    public static int maxHealth = 3;
+    private int health = maxHealth;
+
     private final List<Enemy> enemies = new ArrayList<>();
 
-    public GameEngine() {
+    public GameEngine(GameController gameController) {
+        this.gameController = gameController;
         Thread soundParsingThread = new Thread(() -> {
             AudioFormat format = new AudioFormat(SAMPLE_RATE, 16, 1, true, true);
             TargetDataLine line;
@@ -82,6 +89,18 @@ public class GameEngine {
     private void spawnEnemy(){
         enemies.add(new Enemy());
     }
+
+    private void gameOver(){
+        System.out.println("Game over");
+    }
+
+    private void loseHealth(){
+        health--;
+        if(health >= 0) gameController.healthLost(health);
+        if(health == 0)
+            gameOver();
+
+    }
     
     private void gameTick(float t){
         float passed = t - lastT;
@@ -97,7 +116,7 @@ public class GameEngine {
             if(enemies.get(i).getX() > 1) {
                 System.out.println("Enemy escaped");
                 enemies.remove(i--);
-
+                loseHealth();
             }
             else if(enemies.get(i).getX() > 0.8f && isSinging() && abs(enemies.get(i).getY() - swordPositionProperty.floatValue()) < 0.1f){
                 System.out.println("Enemy killed");
