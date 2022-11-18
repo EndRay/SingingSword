@@ -1,4 +1,4 @@
-package com.example.singingsword.game.images;
+package com.example.singingsword.game.graphics.images;
 
 import com.example.singingsword.GameController;
 import com.example.singingsword.game.Enemy;

@@ -1,10 +1,9 @@
 package com.example.singingsword.game;
 
-import com.example.singingsword.game.images.ImageDrawer;
+import com.example.singingsword.game.graphics.images.ImageDrawer;
 
-import static com.example.singingsword.game.images.SpriteUtils.getEnemySprite;
-import static java.lang.Math.PI;
-import static java.lang.Math.cos;
+import static com.example.singingsword.game.graphics.images.SpriteUtils.getEnemySprite;
+import static java.lang.Math.*;
 
 public class Enemy {
     private float x; // from right to left

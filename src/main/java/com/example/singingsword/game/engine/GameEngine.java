@@ -150,6 +150,7 @@ public class GameEngine {
             }
             else if(enemies.get(i).getX() > 0.8f && isSinging() && checkEnemyKill(enemies.get(i))){
                 System.out.println("Enemy killed");
+                gameController.enemyKilled(enemies.get(i));
                 enemies.remove(i--);
             }
         }

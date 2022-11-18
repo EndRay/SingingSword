@@ -1,4 +1,4 @@
-package com.example.singingsword.game.images;
+package com.example.singingsword.game.graphics.images;
 
 import javafx.scene.canvas.GraphicsContext;
 
