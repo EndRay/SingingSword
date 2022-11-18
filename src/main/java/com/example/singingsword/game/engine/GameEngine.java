@@ -26,6 +26,8 @@ public class GameEngine {
 
     private final FloatProperty singingProperty = new SimpleFloatProperty();
 
+    private boolean gameOver = false;
+
     private final float minFrequency = 70;
     private final float maxFrequency = 800;
 
@@ -105,15 +107,20 @@ public class GameEngine {
     }
 
     private void gameOver(){
+        gameOver = true;
         System.out.println("Game over");
     }
 
-    private void loseHealth(){
-        health--;
-        if(health >= 0) gameController.healthLost(health);
-        if(health == 0)
-            gameOver();
+    public boolean isGameOver(){
+        return gameOver;
+    }
 
+    private void loseHealth(){
+        if(health > 0) {
+            gameController.healthLost(--health);
+            if (health == 0)
+                gameOver();
+        }
     }
 
     private boolean checkEnemyKill(Enemy enemy){
@@ -150,7 +157,7 @@ public class GameEngine {
     
     public void handle(long now){ // seconds
         float t = now / 1e9f;
-        if(t - lastT > gameTickPeriod){
+        if(!gameOver && t - lastT > gameTickPeriod){
             gameTick(t);
             lastT = t;
         }
@@ -170,5 +177,9 @@ public class GameEngine {
 
     public float getSwordPosition() {
         return swordPositionProperty.get();
+    }
+
+    public int getHealth(){
+        return health;
     }
 }

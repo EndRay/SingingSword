@@ -47,16 +47,20 @@ public class GameController {
 
 
         AnimationTimer timer = new AnimationTimer() {
+            float backgroundPos;
+            float floorPos;
+
             @Override
             public void handle(long now) {
                 gameEngine.handle(now);
                 gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
                 float t = (now - startNanoTime) / 1000000000f;
-                float backgroundPos = (t * backgroundMovingSpeed) % ((float) backgroundSprite.getWidth());
+                if(!gameEngine.isGameOver()) {
+                    backgroundPos = (t * backgroundMovingSpeed) % ((float) backgroundSprite.getWidth());
+                    floorPos = (t * floorMovingSpeed) % ((float) floorSprite.getWidth());
+                }
                 backgroundSprite.drawImageLeftTop(gc, -backgroundPos, 0, t);
                 backgroundSprite.drawImageLeftTop(gc, -backgroundPos + backgroundSprite.getWidth(), 0, t);
-
-                float floorPos = (t * floorMovingSpeed) % ((float) floorSprite.getWidth());
                 floorSprite.drawImageLeftTop(gc, -floorPos, 0, t);
                 floorSprite.drawImageLeftTop(gc, -floorPos + floorSprite.getWidth(), 0, t);
 
@@ -79,10 +83,14 @@ public class GameController {
                     swordPositionHistory.removeFirst();
                 }
 
-                for(int i = 0; i < maxHealth; i++){
+                for(int i = 0; i < gameEngine.getHealth(); i++){
                     hearts[i].drawImage(gc, (float) (canvas.getWidth() - 56 - 104*i), 64, t);
                 }
-
+                gc.setGlobalAlpha(0.4f);
+                for(int i = gameEngine.getHealth(); i < maxHealth; i++){
+                    hearts[i].drawImage(gc, (float) (canvas.getWidth() - 56 - 104*i), 64, t);
+                }
+                gc.setGlobalAlpha(1f);
             }
         };
         timer.start();
