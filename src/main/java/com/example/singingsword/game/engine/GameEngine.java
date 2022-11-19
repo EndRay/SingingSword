@@ -202,7 +202,9 @@ public class GameEngine {
                 if(checkEnemyArmorDamage(enemies.get(i))){
                     healthManager.loseHealth();
                 }
-                scoreManager.addScore(enemies.get(i).getScore());
+                else {
+                    scoreManager.addScore(enemies.get(i).getScore());
+                }
                 informable.enemyKilled(enemies.get(i));
                 enemies.remove(i--);
             }

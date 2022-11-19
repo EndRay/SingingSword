@@ -50,6 +50,16 @@ public class Enemy {
             }
         }
 
+        giveScore = switch (type){
+            case REGULAR,INFECTED -> switch (armorType){
+                case NONE -> 10;
+                case TOP,BOTTOM -> 15;
+                case STRONG_TOP,STRONG_BOTTOM -> 20;
+                case BOTH, STRONG_BOTH -> 0;
+            };
+            case HEALING -> 0;
+        };
+
         this.speed = (float) (0.1f + (Math.random()*2 - 1) * 0.05f);
         yMovePeriod = (float) (0.2f + (Math.random()*2 - 1) * 0.1f);
         yMoveAmplitude = (float) (0.05f + (Math.random()*2 - 1) * 0.02f);

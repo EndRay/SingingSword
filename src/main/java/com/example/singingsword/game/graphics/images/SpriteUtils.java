@@ -41,7 +41,9 @@ public class SpriteUtils {
     }
 
     public static ImageDrawer getLostHeartSprite() {
-        return getImageDrawer(128, 128, "damaged_hp1/beating", "damaged_hp1/eye");
+        if(Math.random() < 0.5)
+            return getImageDrawer(128, 128, "damaged_hp1/beating", "damaged_hp1/eye");
+        else return getImageDrawer(128, 128, "damaged_hp2/heart", "damaged_hp2/eye1", "damaged_hp2/eye2", "damaged_hp2/eye3");
     }
 
     public static Image getImage(String name, int width, int height) {
