@@ -14,6 +14,7 @@ public class Enemy {
     private float timePassed;
     private EnemyType type;
     private ImageDrawer imageDrawer;
+    private int giveScore;
 
     private float height = 0.02f;
 
@@ -39,6 +40,12 @@ public class Enemy {
         if(type == EnemyType.HEALING) {
             speed *= 1.5;
             yMoveAmplitude *= 3;
+        }
+
+        switch (type) {
+            case REGULAR -> giveScore = 10;
+            case TOP_ARMORED, BOTTOM_ARMORED -> giveScore = 15;
+            case HEALING -> giveScore = 0;
         }
 
         imageDrawer = getEnemySprite(this);
@@ -70,4 +77,7 @@ public class Enemy {
         return getY() + height/2;
     }
 
+    public int getScore() {
+        return giveScore;
+    }
 }

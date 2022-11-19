@@ -5,12 +5,12 @@ import com.example.singingsword.game.Enemy;
 import com.example.singingsword.game.engine.GameEngine;
 import com.example.singingsword.game.graphics.images.ImageDrawer;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.TextAlignment;
 import javafx.util.Pair;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Deque;
-import java.util.List;
+import java.util.*;
 
 import static com.example.singingsword.game.engine.GameEngine.maxHealth;
 import static com.example.singingsword.game.graphics.images.SpriteUtils.*;
@@ -84,6 +84,7 @@ public class GraphicsEngine {
         drawSwordTrace(t);
         drawSword(t);
         drawHearts(t);
+        printScore();
     }
 
     private void clearBackground() {
@@ -156,4 +157,11 @@ public class GraphicsEngine {
         }
     }
 
+    private void printScore(){
+        gc.setFill(Color.LIGHTGRAY);
+        Font font = Font.loadFont(Objects.requireNonNull(GameController.class.getResource("fonts/pixeloid-font/PixeloidSansBold.ttf")).toString(), 48);
+        gc.setFont(font);
+        gc.setTextAlign(TextAlignment.RIGHT);
+        gc.fillText("" + gameController.getScore(), gc.getCanvas().getWidth() - 32, 128 + 48);
+    }
 }

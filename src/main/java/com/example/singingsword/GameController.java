@@ -48,6 +48,10 @@ public class GameController {
     public float getSwordPosition() {
         return gameEngine.getSwordPosition();
     }
+
+    public int getScore(){
+        return gameEngine.getScore();
+    }
     
     public void initialize() {
         AnimationTimer timer = new AnimationTimer() {

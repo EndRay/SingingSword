@@ -44,6 +44,8 @@ public class GameEngine {
     public static int maxHealth = 3;
     private int health = maxHealth;
 
+    private int score = 0;
+
     private final List<Enemy> enemies = new ArrayList<>();
 
     private final int swordPositionHistorySize = gameTickFrequency / 10;
@@ -165,6 +167,7 @@ public class GameEngine {
                 if(enemies.get(i).getType() == EnemyType.HEALING){
                     loseHealth();
                 }
+                score += enemies.get(i).getScore();
                 gameController.enemyKilled(enemies.get(i));
                 enemies.remove(i--);
             }
@@ -197,5 +200,9 @@ public class GameEngine {
 
     public int getHealth(){
         return health;
+    }
+
+    public int getScore() {
+        return score;
     }
 }
