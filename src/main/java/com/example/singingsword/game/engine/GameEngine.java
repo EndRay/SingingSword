@@ -26,10 +26,12 @@ public class GameEngine {
 
     private final FloatProperty singingProperty = new SimpleFloatProperty();
 
+    private Thread soundParsingThread;
+
     private boolean gameOver = false;
 
-    private final float minFrequency = 70;
-    private final float maxFrequency = 800;
+    private final float minFrequency = 100;
+    private final float maxFrequency = 700;
 
     private float lastT = System.nanoTime() / 1e9f;
     
@@ -49,7 +51,7 @@ public class GameEngine {
 
     public GameEngine(GameController gameController) {
         this.gameController = gameController;
-        Thread soundParsingThread = new Thread(() -> {
+        soundParsingThread = new Thread(() -> {
             AudioFormat format = new AudioFormat(SAMPLE_RATE, 16, 1, true, true);
             TargetDataLine line;
             DataLine.Info info = new DataLine.Info(TargetDataLine.class,
@@ -62,7 +64,7 @@ public class GameEngine {
                 line.open(format);
                 line.start();
                 PitchExtractor pitchExtractor = new PitchExtractor();
-                while (true) {
+                while (!soundParsingThread.isInterrupted()) {
                     byte[] data = new byte[1024];
                     int numBytesRead = line.read(data, 0, data.length);
                     pitchExtractor.feedRawData(data, numBytesRead);
@@ -108,6 +110,7 @@ public class GameEngine {
 
     private void gameOver(){
         gameOver = true;
+        soundParsingThread.interrupt();
         System.out.println("Game over");
     }
 
@@ -123,13 +126,19 @@ public class GameEngine {
         }
     }
 
+    private void restoreHealth(){
+        if(health < maxHealth) {
+            gameController.healthRestored(health++);
+        }
+    }
+
     private boolean checkEnemyKill(Enemy enemy){
         return ((swordPositionHistory.getFirst() < enemy.getHitboxStart() &&
                         swordPositionHistory.getLast() > enemy.getHitboxEnd() &&
-                        (enemy.getType() == EnemyType.REGULAR || enemy.getType() == EnemyType.TOP_ARMORED)) ||
+                        (enemy.getType() != EnemyType.BOTTOM_ARMORED)) ||
                 (swordPositionHistory.getLast() < enemy.getHitboxStart() &&
                         swordPositionHistory.getFirst() > enemy.getHitboxEnd() &&
-                        (enemy.getType() == EnemyType.REGULAR || enemy.getType() == EnemyType.BOTTOM_ARMORED)));
+                        (enemy.getType() != EnemyType.TOP_ARMORED)));
     }
     
     private void gameTick(float t){
@@ -144,12 +153,18 @@ public class GameEngine {
         }
         for(int i = 0; i < enemies.size(); i++){
             if(enemies.get(i).getX() > 1) {
-                System.out.println("Enemy escaped");
+                if(enemies.get(i).getType() == EnemyType.HEALING){
+                    restoreHealth();
+                }
+                else {
+                    loseHealth();
+                }
                 enemies.remove(i--);
-                loseHealth();
             }
             else if(enemies.get(i).getX() > 0.8f && isSinging() && checkEnemyKill(enemies.get(i))){
-                System.out.println("Enemy killed");
+                if(enemies.get(i).getType() == EnemyType.HEALING){
+                    loseHealth();
+                }
                 gameController.enemyKilled(enemies.get(i));
                 enemies.remove(i--);
             }

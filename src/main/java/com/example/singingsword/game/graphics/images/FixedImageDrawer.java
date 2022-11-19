@@ -32,6 +32,19 @@ public class FixedImageDrawer implements ImageDrawer {
     }
 
     @Override
+    public void setAlpha(float opacity) {
+        imageDrawer.setAlpha(opacity);
+    }
+
+    @Override
+    public void useGlobalAlpha() {
+        imageDrawer.useGlobalAlpha();
+    }
+    public boolean isGlobalAlpha(){
+        return imageDrawer.isGlobalAlpha();
+    }
+
+    @Override
     public FixedImageDrawer fix(float t){
         return this;
     }

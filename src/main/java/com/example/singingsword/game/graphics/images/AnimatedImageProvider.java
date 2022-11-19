@@ -6,11 +6,11 @@ import java.util.List;
 
 public class AnimatedImageProvider implements ImageProvider{
 
-    List<Image> images;
-    float period;
+    private List<Image> images;
+    private float period;
 
-    boolean firstAsked = true;
-    float startT;
+    private boolean firstAsked = true;
+    private float startT;
 
     public AnimatedImageProvider(List<Image> images, float period) {
         this.images = images;

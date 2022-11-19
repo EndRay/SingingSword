@@ -23,6 +23,7 @@ public class SpriteUtils {
             case REGULAR -> getImageDrawer(128, 128, "enemy");
             case TOP_ARMORED -> getImageDrawer(128, 128, "enemy", "hat");
             case BOTTOM_ARMORED -> getImageDrawer(128, 128, "enemy", "bottom_hat");
+            case HEALING -> getImageDrawer(128, 128, "healing_boy");
         };
     }
 

@@ -18,18 +18,14 @@ public class FallingImage {
     private float lastT;
     private ImageDrawer imageDrawer;
 
-    public FallingImage(float x, float y, ImageDrawer imageDrawer, float xSpeed, float ySpeed, float rotation, float rSpeed) {
+    public FallingImage(float x, float y, ImageDrawer imageDrawer, float xSpeed, float ySpeed, float rSpeed) {
         this.x = x;
         this.y = y;
+        this.rotation = 0;
         this.xSpeed = xSpeed;
         this.ySpeed = ySpeed;
-        this.rotation = rotation;
         this.rSpeed = rSpeed;
         this.imageDrawer = imageDrawer;
-    }
-
-    public FallingImage(float x, float y, ImageDrawer imageDrawer) {
-        this(x, y, imageDrawer, (float) (Math.random() + 1) * 100, (float) -600, 0, (float) (Math.random() - 0.5) * 40);
     }
 
     public float getX() {
