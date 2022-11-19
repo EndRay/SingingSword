@@ -2,6 +2,7 @@ package com.example.singingsword.game.graphics.images;
 
 import com.example.singingsword.GameController;
 import com.example.singingsword.game.Enemy;
+import com.example.singingsword.game.EnemyType;
 import javafx.scene.image.Image;
 
 import java.io.FileInputStream;
@@ -19,10 +20,18 @@ public class SpriteUtils {
 
 
     public static ImageDrawer getEnemySprite(Enemy enemy) {
+        String name = enemy.getType() == EnemyType.REGULAR ? "enemy" : "infected_enemy";
+
         return switch (enemy.getType()) {
-            case REGULAR -> getImageDrawer(128, 128, "enemy");
-            case TOP_ARMORED -> getImageDrawer(128, 128, "enemy", "hat");
-            case BOTTOM_ARMORED -> getImageDrawer(128, 128, "enemy", "bottom_hat");
+            case REGULAR, INFECTED -> switch (enemy.getArmorType()) {
+                case NONE -> getImageDrawer(128, 128, name);
+                case TOP -> getImageDrawer(128, 128, name, "hat");
+                case BOTTOM -> getImageDrawer(128, 128, name, "bottom_hat");
+                case BOTH -> getImageDrawer(128, 128, name, "bottom_hat", "hat");
+                case STRONG_TOP -> getImageDrawer(128, 128, name, "strong_hat");
+                case STRONG_BOTTOM -> getImageDrawer(128, 128, name, "strong_bottom_hat");
+                case STRONG_BOTH -> getImageDrawer(128, 128, name, "strong_bottom_hat", "strong_hat");
+            };
             case HEALING -> getImageDrawer(128, 128, "healing_boy");
         };
     }
@@ -67,9 +76,9 @@ public class SpriteUtils {
             properties.load(info);
             float period = Float.parseFloat(properties.getProperty("period"));
             List<Image> trueFrames = new ArrayList<>();
-            for(int j = 0; j < frames.size(); j++){
+            for (int j = 0; j < frames.size(); j++) {
                 int count = Integer.parseInt(properties.getProperty("frame" + j, String.valueOf(1)));
-                for(int k = 0; k < count; k++){
+                for (int k = 0; k < count; k++) {
                     trueFrames.add(frames.get(j));
                 }
             }
@@ -95,15 +104,15 @@ public class SpriteUtils {
         }
     }
 
-    public static ImageDrawer getImageDrawer(int width, int height, String... names){
-        if(names.length == 0){
+    public static ImageDrawer getImageDrawer(int width, int height, String... names) {
+        if (names.length == 0) {
             throw new IllegalArgumentException("Cannot create ImageDrawer with no sprites");
         }
-        if(names.length == 1){
+        if (names.length == 1) {
             return new SimpleImageDrawer(getImageProvider(names[0], width, height));
         }
         List<ImageProvider> providers = new ArrayList<>();
-        for(String name : names){
+        for (String name : names) {
             providers.add(getImageProvider(name, width, height));
         }
         return new CombinedImageDrawer(providers);

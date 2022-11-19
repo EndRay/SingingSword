@@ -1,6 +1,5 @@
 package com.example.singingsword.game.engine;
 
-import com.example.singingsword.GameController;
 import com.example.singingsword.game.Enemy;
 import com.example.singingsword.game.EnemyType;
 import com.example.singingsword.game.engine.sound.PitchExtractor;
@@ -38,7 +37,7 @@ public class GameEngine {
     private final int gameTickFrequency = 60;
     private final float gameTickPeriod = 1f / gameTickFrequency;
 
-    private final float spawnPeriod = 2f; // in seconds
+    private final float spawnPeriod = 1f; // in seconds
     private float nextSpawnTime = 0f;
 
     public class HealthManager {
@@ -153,14 +152,31 @@ public class GameEngine {
         return gameOver;
     }
 
-    private boolean checkEnemyKill(Enemy enemy){
-        return ((swordPositionHistory.getFirst() < enemy.getHitboxStart() &&
-                        swordPositionHistory.getLast() > enemy.getHitboxEnd() &&
-                        (enemy.getType() != EnemyType.BOTTOM_ARMORED)) ||
-                (swordPositionHistory.getLast() < enemy.getHitboxStart() &&
-                        swordPositionHistory.getFirst() > enemy.getHitboxEnd() &&
-                        (enemy.getType() != EnemyType.TOP_ARMORED)));
+    private boolean checkTopBottomCut(Enemy enemy){
+        return swordPositionHistory.getLast() < enemy.getHitboxStart() &&
+                swordPositionHistory.getFirst() > enemy.getHitboxEnd();
     }
+
+    private boolean checkBottomTopCut(Enemy enemy){
+        return swordPositionHistory.getFirst() < enemy.getHitboxStart() &&
+                swordPositionHistory.getLast() > enemy.getHitboxEnd();
+    }
+
+    private boolean checkEnemyKill(Enemy enemy){
+        return ((checkBottomTopCut(enemy) &&
+                    !(enemy.getArmorType().isBottom() && !enemy.getArmorType().isStrong())) ||
+                (checkTopBottomCut(enemy) &&
+                    !(enemy.getArmorType().isTop() && !enemy.getArmorType().isStrong())));
+    }
+
+    private boolean checkEnemyArmorDamage(Enemy enemy){
+        return ((checkBottomTopCut(enemy) &&
+                    enemy.getArmorType().isBottom() && enemy.getArmorType().isStrong()) ||
+                (checkTopBottomCut(enemy) &&
+                    enemy.getArmorType().isTop() && enemy.getArmorType().isStrong()));
+    }
+
+
     
     private void gameTick(float t){
         float passed = t - lastT;
@@ -177,13 +193,13 @@ public class GameEngine {
                 if(enemies.get(i).getType() == EnemyType.HEALING){
                     healthManager.restoreHealth();
                 }
-                else {
+                else if (enemies.get(i).getType() == EnemyType.INFECTED){
                     healthManager.loseHealth();
                 }
                 enemies.remove(i--);
             }
-            else if(enemies.get(i).getX() > 0.8f && isSinging() && checkEnemyKill(enemies.get(i))){
-                if(enemies.get(i).getType() == EnemyType.HEALING){
+            else if(enemies.get(i).getX() > 0.8f && enemies.get(i).getX() < 0.9f && isSinging() && checkEnemyKill(enemies.get(i))){
+                if(checkEnemyArmorDamage(enemies.get(i))){
                     healthManager.loseHealth();
                 }
                 scoreManager.addScore(enemies.get(i).getScore());

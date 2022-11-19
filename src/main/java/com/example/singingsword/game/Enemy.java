@@ -13,6 +13,7 @@ public class Enemy {
     private float speed;
     private float timePassed;
     private EnemyType type;
+    private ArmorType armorType;
     private ImageDrawer imageDrawer;
     private int giveScore;
 
@@ -23,14 +24,29 @@ public class Enemy {
         this.y = (float) Math.random() * 0.7f + 0.15f;
         {
             var rnd = Math.random();
-            if(rnd < 0.1){
-                type = EnemyType.BOTTOM_ARMORED;
-            } else if(rnd < 0.2){
-                type = EnemyType.TOP_ARMORED;
-            } else if(rnd < 0.25) {
+            if(rnd < 0.05){
                 type = EnemyType.HEALING;
+                armorType = ArmorType.NONE;
             } else {
-                type = EnemyType.REGULAR;
+                rnd = Math.random();
+                if(rnd < 0.05){
+                    type = EnemyType.INFECTED;
+                } else {
+                    type = EnemyType.REGULAR;
+                }
+                rnd = Math.random();
+                if(rnd < 0.2){
+                    armorType = ArmorType.TOP;
+                } else if(rnd < 0.4){
+                    armorType = ArmorType.BOTTOM;
+                } else if(rnd < 0.5 && type != EnemyType.INFECTED){
+                    armorType = ArmorType.BOTH;
+                } else {
+                    armorType = ArmorType.NONE;
+                }
+                rnd = Math.random();
+                if(rnd < 0.4)
+                    armorType = armorType.strong();
             }
         }
 
@@ -40,12 +56,6 @@ public class Enemy {
         if(type == EnemyType.HEALING) {
             speed *= 1.5;
             yMoveAmplitude *= 3;
-        }
-
-        switch (type) {
-            case REGULAR -> giveScore = 10;
-            case TOP_ARMORED, BOTTOM_ARMORED -> giveScore = 15;
-            case HEALING -> giveScore = 0;
         }
 
         imageDrawer = getEnemySprite(this);
@@ -79,5 +89,9 @@ public class Enemy {
 
     public int getScore() {
         return giveScore;
+    }
+
+    public ArmorType getArmorType() {
+        return armorType;
     }
 }
