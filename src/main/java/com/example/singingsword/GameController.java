@@ -2,7 +2,9 @@ package com.example.singingsword;
 
 import com.example.singingsword.game.Enemy;
 import com.example.singingsword.game.engine.GameEngine;
+import com.example.singingsword.game.engine.Informable;
 import com.example.singingsword.game.graphics.GraphicsEngine;
+import com.example.singingsword.game.graphics.Informator;
 import javafx.animation.AnimationTimer;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
@@ -10,12 +12,12 @@ import javafx.scene.canvas.GraphicsContext;
 
 import java.util.List;
 
-public class GameController {
+public class GameController implements Informable, Informator {
     @FXML
     private Canvas canvas;
 
     private final GameEngine gameEngine = new GameEngine(this);
-    private GraphicsEngine graphicsEngine = new GraphicsEngine(this);
+    private GraphicsEngine graphicsEngine;
 
     public void healthLost(int health) {
         graphicsEngine.healthLost(health);
@@ -37,10 +39,6 @@ public class GameController {
         return gameEngine.getEnemies();
     }
 
-    public GraphicsContext getGraphicContext() {
-        return canvas.getGraphicsContext2D();
-    }
-
     public float getSinging() {
         return gameEngine.getSinging();
     }
@@ -50,10 +48,11 @@ public class GameController {
     }
 
     public int getScore(){
-        return gameEngine.getScore();
+        return gameEngine.scoreManager.getScore();
     }
     
     public void initialize() {
+        graphicsEngine = new GraphicsEngine(canvas.getGraphicsContext2D(), this);
         AnimationTimer timer = new AnimationTimer() {
             @Override
             public void handle(long now) {

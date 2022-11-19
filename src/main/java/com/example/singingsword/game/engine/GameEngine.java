@@ -19,7 +19,7 @@ import static java.lang.Math.*;
 import static java.util.Collections.unmodifiableList;
 
 public class GameEngine {
-    private final GameController gameController;
+    private final Informable informable;
 
     private final FloatProperty swordTargetPositionProperty = new SimpleFloatProperty();
     private final FloatProperty swordPositionProperty = new SimpleFloatProperty();
@@ -41,18 +41,52 @@ public class GameEngine {
     private final float spawnPeriod = 2f; // in seconds
     private float nextSpawnTime = 0f;
 
-    public static int maxHealth = 3;
-    private int health = maxHealth;
+    public class HealthManager {
+        public static final int maxHealth = 3;
+        private int health = maxHealth;
 
-    private int score = 0;
+        public int getHealth() {
+            return health;
+        }
+
+        private void loseHealth() {
+            if (health > 0) {
+                informable.healthLost(--health);
+                if (health == 0) {
+                    gameOver();
+                }
+            }
+
+        }
+
+        private void restoreHealth() {
+            if (health < maxHealth) {
+                informable.healthRestored(health++);
+            }
+        }
+    }
+    public final HealthManager healthManager = new HealthManager();
+
+    public class ScoreManager {
+        private int score = 0;
+
+        public int getScore() {
+            return score;
+        }
+
+        private void addScore(int score) {
+            this.score += score;
+        }
+    }
+    public final ScoreManager scoreManager = new ScoreManager();
 
     private final List<Enemy> enemies = new ArrayList<>();
 
     private final int swordPositionHistorySize = gameTickFrequency / 10;
     private final Deque<Float> swordPositionHistory = new ArrayDeque<>();
 
-    public GameEngine(GameController gameController) {
-        this.gameController = gameController;
+    public GameEngine(Informable informable) {
+        this.informable = informable;
         soundParsingThread = new Thread(() -> {
             AudioFormat format = new AudioFormat(SAMPLE_RATE, 16, 1, true, true);
             TargetDataLine line;
@@ -66,7 +100,7 @@ public class GameEngine {
                 line.open(format);
                 line.start();
                 PitchExtractor pitchExtractor = new PitchExtractor();
-                while (!soundParsingThread.isInterrupted()) {
+                while (!gameOver) {
                     byte[] data = new byte[1024];
                     int numBytesRead = line.read(data, 0, data.length);
                     pitchExtractor.feedRawData(data, numBytesRead);
@@ -112,26 +146,11 @@ public class GameEngine {
 
     private void gameOver(){
         gameOver = true;
-        soundParsingThread.interrupt();
         System.out.println("Game over");
     }
 
     public boolean isGameOver(){
         return gameOver;
-    }
-
-    private void loseHealth(){
-        if(health > 0) {
-            gameController.healthLost(--health);
-            if (health == 0)
-                gameOver();
-        }
-    }
-
-    private void restoreHealth(){
-        if(health < maxHealth) {
-            gameController.healthRestored(health++);
-        }
     }
 
     private boolean checkEnemyKill(Enemy enemy){
@@ -156,19 +175,19 @@ public class GameEngine {
         for(int i = 0; i < enemies.size(); i++){
             if(enemies.get(i).getX() > 1) {
                 if(enemies.get(i).getType() == EnemyType.HEALING){
-                    restoreHealth();
+                    healthManager.restoreHealth();
                 }
                 else {
-                    loseHealth();
+                    healthManager.loseHealth();
                 }
                 enemies.remove(i--);
             }
             else if(enemies.get(i).getX() > 0.8f && isSinging() && checkEnemyKill(enemies.get(i))){
                 if(enemies.get(i).getType() == EnemyType.HEALING){
-                    loseHealth();
+                    healthManager.loseHealth();
                 }
-                score += enemies.get(i).getScore();
-                gameController.enemyKilled(enemies.get(i));
+                scoreManager.addScore(enemies.get(i).getScore());
+                informable.enemyKilled(enemies.get(i));
                 enemies.remove(i--);
             }
         }
@@ -196,13 +215,5 @@ public class GameEngine {
 
     public float getSwordPosition() {
         return swordPositionProperty.get();
-    }
-
-    public int getHealth(){
-        return health;
-    }
-
-    public int getScore() {
-        return score;
     }
 }

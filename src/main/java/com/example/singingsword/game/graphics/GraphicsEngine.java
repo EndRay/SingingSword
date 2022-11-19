@@ -3,6 +3,7 @@ package com.example.singingsword.game.graphics;
 import com.example.singingsword.GameController;
 import com.example.singingsword.game.Enemy;
 import com.example.singingsword.game.engine.GameEngine;
+import com.example.singingsword.game.engine.Informable;
 import com.example.singingsword.game.graphics.images.ImageDrawer;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
@@ -12,13 +13,13 @@ import javafx.util.Pair;
 
 import java.util.*;
 
-import static com.example.singingsword.game.engine.GameEngine.maxHealth;
+import static com.example.singingsword.game.engine.GameEngine.HealthManager.maxHealth;
 import static com.example.singingsword.game.graphics.images.SpriteUtils.*;
 import static com.example.singingsword.game.graphics.images.SpriteUtils.swordSprite;
 import static java.lang.Math.*;
 
 public class GraphicsEngine {
-    private final GameController gameController;
+    private final Informator informator;
     private GraphicsContext gc;
     private final long startNanoTime = System.nanoTime();
 
@@ -40,8 +41,9 @@ public class GraphicsEngine {
     float swordPositionHistorySize = 10;
     Deque<Pair<Float, Float>> swordPositionHistory = new ArrayDeque<>();
 
-    public GraphicsEngine(GameController gameController) {
-        this.gameController = gameController;
+    public GraphicsEngine(GraphicsContext gc, Informator informator) {
+        this.gc = gc;
+        this.informator = informator;
         for (int i = 0; i < maxHealth; ++i)
             hearts[i] = getFilledHeartSprite();
     }
@@ -74,7 +76,6 @@ public class GraphicsEngine {
     }
 
     public void draw(long now) {
-        gc = gameController.getGraphicContext();
         float t = (now - startNanoTime) / 1000000000f;
         clearBackground();
         drawBackground(t);
@@ -92,7 +93,7 @@ public class GraphicsEngine {
     }
 
     private void drawBackground(float t) {
-        if (!gameController.isGameOver()) {
+        if (!informator.isGameOver()) {
             backgroundPos = (t * backgroundMovingSpeed) % ((float) backgroundSprite.getWidth());
             floorPos = (t * floorMovingSpeed) % ((float) floorSprite.getWidth());
         }
@@ -126,7 +127,7 @@ public class GraphicsEngine {
     }
 
     private void drawEnemies(float t) {
-        for (Enemy enemy : gameController.getEnemies()) {
+        for (Enemy enemy : informator.getEnemies()) {
             enemy.getImageDrawer().drawImage(gc, getEnemyX(enemy), getPlayableY(enemy.getY()), t);
         }
     }
@@ -142,8 +143,8 @@ public class GraphicsEngine {
     }
 
     private void drawSword(float t) {
-        float swordX = min(1, 2 * gameController.getSinging()) * 64;
-        float swordY = (float) ((1 - gameController.getSwordPosition()) * (gc.getCanvas().getHeight() - unusedFloor));
+        float swordX = min(1, 2 * informator.getSinging()) * 64;
+        float swordY = (float) ((1 - informator.getSwordPosition()) * (gc.getCanvas().getHeight() - unusedFloor));
         swordSprite.drawImage(gc, swordX, swordY, t);
         swordPositionHistory.add(new Pair<>(swordX, swordY));
         if (swordPositionHistory.size() > swordPositionHistorySize) {
@@ -162,6 +163,6 @@ public class GraphicsEngine {
         Font font = Font.loadFont(Objects.requireNonNull(GameController.class.getResource("fonts/pixeloid-font/PixeloidSansBold.ttf")).toString(), 48);
         gc.setFont(font);
         gc.setTextAlign(TextAlignment.RIGHT);
-        gc.fillText("" + gameController.getScore(), gc.getCanvas().getWidth() - 32, 128 + 48);
+        gc.fillText("" + informator.getScore(), gc.getCanvas().getWidth() - 32, 128 + 48);
     }
 }
