@@ -9,9 +9,6 @@ public interface ImageDrawer {
     int getWidth();
     int getHeight();
     void setAlpha(float opacity);
-    void useGlobalAlpha();
-    boolean isGlobalAlpha();
-
 
     default void drawImageLeftTop(GraphicsContext gc, float x, float y, float t){
         drawImage(gc, x + getWidth()/2f, y + getHeight()/2f, t);
@@ -25,7 +22,7 @@ public interface ImageDrawer {
         gc.restore();
     }
 
-    default FixedImageDrawer fix(float t){
+    default ImageDrawer fix(float t){
         return new FixedImageDrawer(this, t);
     }
 

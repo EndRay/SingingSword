@@ -1,11 +1,11 @@
 package com.example.singingsword.game.graphics.images;
 
 import com.example.singingsword.GameController;
+import com.example.singingsword.game.DamageCause;
 import com.example.singingsword.game.Enemy;
 import com.example.singingsword.game.EnemyType;
 import javafx.scene.image.Image;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.NoSuchFileException;
 import java.util.ArrayList;
@@ -14,7 +14,7 @@ import java.util.Objects;
 import java.util.Properties;
 
 public class SpriteUtils {
-    public static final ImageDrawer swordSprite = getImageDrawer(128, 128, "sword");
+    public static final ImageDrawer swordSprite = new TracedImageDrawer(getImageDrawer(128, 128, "sword"), 1/6f);
     public static final ImageDrawer backgroundSprite = getImageDrawer(960, 720, "background");
     public static final ImageDrawer floorSprite = getImageDrawer(960, 720, "floor");
 
@@ -32,7 +32,7 @@ public class SpriteUtils {
                 case STRONG_BOTTOM -> getImageDrawer(128, 128, name, "strong_bottom_hat");
                 case STRONG_BOTH -> getImageDrawer(128, 128, name, "strong_bottom_hat", "strong_hat");
             };
-            case HEALING -> getImageDrawer(128, 128, "healing_boy");
+            case HEALING -> new TracedImageDrawer(getImageDrawer(128, 128, "healing_boy"), 0.5f, 0.25f);
         };
     }
 
@@ -40,10 +40,14 @@ public class SpriteUtils {
         return new SimpleImageDrawer(getImageProvider("hp", 128, 128));
     }
 
-    public static ImageDrawer getLostHeartSprite() {
-        if(Math.random() < 0.5)
-            return getImageDrawer(128, 128, "damaged_hp1/beating", "damaged_hp1/eye");
-        else return getImageDrawer(128, 128, "damaged_hp2/heart", "damaged_hp2/eye1", "damaged_hp2/eye2", "damaged_hp2/eye3");
+    public static ImageDrawer getLostHeartSprite(DamageCause cause) {
+        return switch (cause) {
+            case INFECTION ->
+                (Math.random() < 0.5) ?
+                    getImageDrawer(128, 128, "damaged_hp1/beating", "damaged_hp1/eye") :
+                    getImageDrawer(128, 128, "damaged_hp2/heart", "damaged_hp2/eye1", "damaged_hp2/eye2", "damaged_hp2/eye3");
+            case DAMAGED_SWORD -> getImageDrawer(128, 128, "broken_heart/segment1", "broken_heart/segment2", "broken_heart/segment3");
+        };
     }
 
     public static Image getImage(String name, int width, int height) {
@@ -73,7 +77,7 @@ public class SpriteUtils {
                 break;
             }
         }
-        try (var info = new FileInputStream(Objects.requireNonNull(GameController.class.getResource("images/" + name + "/info.properties")).getFile())) {
+        try (var info = GameController.class.getResourceAsStream("images/" + name + "/info.properties")){
             var properties = new Properties();
             properties.load(info);
             float period = Float.parseFloat(properties.getProperty("period"));
@@ -90,7 +94,7 @@ public class SpriteUtils {
         } catch (NullPointerException e) {
             throw new NoSuchFileException("No info.properties for animated sprite \"" + name + "\"");
         } catch (IOException e) {
-            throw new RuntimeException("Error while reading info.properties for animated sprite \"" + name + "\"");
+            throw new RuntimeException(e);
         }
     }
 

@@ -1,5 +1,6 @@
 package com.example.singingsword;
 
+import com.example.singingsword.game.DamageCause;
 import com.example.singingsword.game.Enemy;
 import com.example.singingsword.game.engine.GameEngine;
 import com.example.singingsword.game.engine.Informable;
@@ -8,7 +9,6 @@ import com.example.singingsword.game.graphics.Informator;
 import javafx.animation.AnimationTimer;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
-import javafx.scene.canvas.GraphicsContext;
 
 import java.util.List;
 
@@ -19,8 +19,8 @@ public class GameController implements Informable, Informator {
     private final GameEngine gameEngine = new GameEngine(this);
     private GraphicsEngine graphicsEngine;
 
-    public void healthLost(int health) {
-        graphicsEngine.healthLost(health);
+    public void healthLost(int health, DamageCause cause) {
+        graphicsEngine.healthLost(health, cause);
     }
 
     public void healthRestored(int health) {
@@ -29,6 +29,10 @@ public class GameController implements Informable, Informator {
 
     public void enemyKilled(Enemy enemy) {
         graphicsEngine.enemyKilled(enemy);
+    }
+
+    public void enemyEscaped(Enemy enemy) {
+        graphicsEngine.enemyEscaped(enemy);
     }
 
     public boolean isGameOver() {

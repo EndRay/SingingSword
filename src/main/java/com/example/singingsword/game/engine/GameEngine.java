@@ -1,5 +1,6 @@
 package com.example.singingsword.game.engine;
 
+import com.example.singingsword.game.DamageCause;
 import com.example.singingsword.game.Enemy;
 import com.example.singingsword.game.EnemyType;
 import com.example.singingsword.game.engine.sound.PitchExtractor;
@@ -48,9 +49,9 @@ public class GameEngine {
             return health;
         }
 
-        private void loseHealth() {
+        private void loseHealth(DamageCause cause) {
             if (health > 0) {
-                informable.healthLost(--health);
+                informable.healthLost(--health, cause);
                 if (health == 0) {
                     gameOver();
                 }
@@ -194,13 +195,14 @@ public class GameEngine {
                     healthManager.restoreHealth();
                 }
                 else if (enemies.get(i).getType() == EnemyType.INFECTED){
-                    healthManager.loseHealth();
+                    healthManager.loseHealth(DamageCause.INFECTION);
                 }
+                informable.enemyEscaped(enemies.get(i));
                 enemies.remove(i--);
             }
             else if(enemies.get(i).getX() > 0.8f && enemies.get(i).getX() < 0.9f && isSinging() && checkEnemyKill(enemies.get(i))){
                 if(checkEnemyArmorDamage(enemies.get(i))){
-                    healthManager.loseHealth();
+                    healthManager.loseHealth(DamageCause.DAMAGED_SWORD);
                 }
                 else {
                     scoreManager.addScore(enemies.get(i).getScore());

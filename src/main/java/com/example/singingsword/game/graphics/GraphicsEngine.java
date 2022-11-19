@@ -1,9 +1,8 @@
 package com.example.singingsword.game.graphics;
 
 import com.example.singingsword.GameController;
+import com.example.singingsword.game.DamageCause;
 import com.example.singingsword.game.Enemy;
-import com.example.singingsword.game.engine.GameEngine;
-import com.example.singingsword.game.engine.Informable;
 import com.example.singingsword.game.graphics.images.ImageDrawer;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
@@ -19,8 +18,10 @@ import static com.example.singingsword.game.graphics.images.SpriteUtils.swordSpr
 import static java.lang.Math.*;
 
 public class GraphicsEngine {
+    public static final int FPS = 60;
+
     private final Informator informator;
-    private GraphicsContext gc;
+    private final GraphicsContext gc;
     private final long startNanoTime = System.nanoTime();
 
     private final static float backgroundMovingSpeed = 40f;
@@ -38,8 +39,15 @@ public class GraphicsEngine {
     private final List<Pair<Integer, ImageDrawer>> recentlyRestored = new ArrayList<>();
     private final List<FallingImage> fallingImages = new ArrayList<>();
 
-    float swordPositionHistorySize = 10;
-    Deque<Pair<Float, Float>> swordPositionHistory = new ArrayDeque<>();
+    private static class KeptImageDrawer{
+        public ImageDrawer imageDrawer;
+        public int counter;
+        KeptImageDrawer(ImageDrawer imageDrawer, int counter){
+            this.imageDrawer = imageDrawer;
+            this.counter = counter;
+        }
+    }
+    private final List<KeptImageDrawer> keptImages = new ArrayList<>();
 
     public GraphicsEngine(GraphicsContext gc, Informator informator) {
         this.gc = gc;
@@ -48,8 +56,8 @@ public class GraphicsEngine {
             hearts[i] = getFilledHeartSprite();
     }
 
-    public void healthLost(int health) {
-        hearts[health] = getLostHeartSprite();
+    public void healthLost(int health, DamageCause cause) {
+        hearts[health] = getLostHeartSprite(cause);
         hearts[health].setAlpha(0.5f);
     }
 
@@ -59,7 +67,12 @@ public class GraphicsEngine {
     }
 
     public void enemyKilled(Enemy enemy) {
+        keptImages.add(new KeptImageDrawer(enemy.getImageDrawer(), FPS)); // keep for second
         recentlyKilled.add(enemy);
+    }
+
+    public void enemyEscaped(Enemy enemy){
+        keptImages.add(new KeptImageDrawer(enemy.getImageDrawer(), FPS)); // keep for second
     }
 
     private float getEnemyX(Enemy enemy) {
@@ -72,7 +85,7 @@ public class GraphicsEngine {
     }
 
     private float getHeartX(int index){
-        return (float) (gc.getCanvas().getWidth() - 56 - 104 * index);
+        return (float) (gc.getCanvas().getWidth() - 56 - 112 * index);
     }
 
     public void draw(long now) {
@@ -82,7 +95,7 @@ public class GraphicsEngine {
         updateFallingImages(t);
         moveFallingImages(t);
         drawEnemies(t);
-        drawSwordTrace(t);
+        drawKeptImages(t);
         drawSword(t);
         drawHearts(t);
         printScore();
@@ -123,7 +136,19 @@ public class GraphicsEngine {
         for (FallingImage fallingImage : fallingImages) {
             fallingImage.draw(gc, t);
         }
-        fallingImages.removeIf(img -> img.getY() > gc.getCanvas().getHeight() + hypot(img.getImageDrawer().getWidth(), img.getImageDrawer().getHeight()) / 2);
+        fallingImages.removeIf(img -> img.getY() > 2*gc.getCanvas().getHeight() + hypot(img.getImageDrawer().getWidth(), img.getImageDrawer().getHeight()) / 2);
+    }
+
+    void drawKeptImages(float t){
+        for (int i = 0; i < keptImages.size(); i++) {
+            KeptImageDrawer keptImage = keptImages.get(i);
+            keptImage.imageDrawer.drawImageLeftTop(gc, (float) gc.getCanvas().getWidth(), (float) gc.getCanvas().getHeight(), t);
+            keptImage.counter--;
+            if (keptImage.counter <= 0){
+                keptImages.remove(i);
+                i--;
+            }
+        }
     }
 
     private void drawEnemies(float t) {
@@ -132,24 +157,10 @@ public class GraphicsEngine {
         }
     }
 
-    private void drawSwordTrace(float t) {
-        float opacity = 0f;
-        for (var swordPosition : swordPositionHistory) {
-            gc.setGlobalAlpha(opacity);
-            opacity += 1f / swordPositionHistorySize;
-            swordSprite.drawImage(gc, swordPosition.getKey(), swordPosition.getValue(), t);
-        }
-        gc.setGlobalAlpha(1f);
-    }
-
     private void drawSword(float t) {
         float swordX = min(1, 2 * informator.getSinging()) * 64;
         float swordY = (float) ((1 - informator.getSwordPosition()) * (gc.getCanvas().getHeight() - unusedFloor));
         swordSprite.drawImage(gc, swordX, swordY, t);
-        swordPositionHistory.add(new Pair<>(swordX, swordY));
-        if (swordPositionHistory.size() > swordPositionHistorySize) {
-            swordPositionHistory.removeFirst();
-        }
     }
 
     private void drawHearts(float t) {
