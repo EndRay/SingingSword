@@ -34,6 +34,18 @@ public class GraphicsEngine {
     float backgroundPos;
     float floorPos;
 
+    private final static float damageAnimationTime = 0.3f;
+    private final static float damageAnimationOpacity = 0.4f;
+    private final static Color damageAnimationColor = Color.RED;
+    private boolean damaged = false;
+    private float lastDamageT = 0;
+
+    private final static float healAnimationTime = 0.5f;
+    private final static float healAnimationOpacity = 0.5f;
+    private final static Color healAnimationColor = Color.PINK;
+    private boolean healed = false;
+    private float lastHealT = 0;
+
     private final ImageDrawer[] hearts = new ImageDrawer[maxHealth];
 
     private TextDrawer streakText = new TextDrawer("", Color.GOLD, 48);
@@ -72,11 +84,13 @@ public class GraphicsEngine {
     public void healthLost(int health, DamageCause cause) {
         hearts[health] = getLostHeartSprite(cause);
         hearts[health].setAlpha(0.5f);
+        damaged = true;
     }
 
     public void healthRestored(int health) {
         recentlyRestored.add(new Pair<>(health, hearts[health]));
         hearts[health] = getFilledHeartSprite();
+        healed = true;
     }
 
     public void enemyKilled(Enemy enemy) {
@@ -112,6 +126,27 @@ public class GraphicsEngine {
         drawSword(t);
         drawHearts(t);
         printScore(t);
+        drawDamageAnimation(t);
+    }
+
+    private void drawDamageAnimation(float t) {
+        if(damaged) {
+            lastDamageT = t;
+            damaged = false;
+        }
+        gc.setFill(damageAnimationColor);
+        gc.setGlobalAlpha(damageAnimationOpacity * (1 - min(1, (t - lastDamageT) / damageAnimationTime)));
+        gc.fillRect(0, 0, gc.getCanvas().getWidth(), gc.getCanvas().getHeight());
+        gc.setGlobalAlpha(1f);
+
+        if(healed) {
+            lastHealT = t;
+            healed = false;
+        }
+        gc.setFill(healAnimationColor);
+        gc.setGlobalAlpha(healAnimationOpacity * (1 - min(1, (t - lastHealT) / healAnimationTime)));
+        gc.fillRect(0, 0, gc.getCanvas().getWidth(), gc.getCanvas().getHeight());
+        gc.setGlobalAlpha(1f);
     }
 
     private void clearBackground() {
