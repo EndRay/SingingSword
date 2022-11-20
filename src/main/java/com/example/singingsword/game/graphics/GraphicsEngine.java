@@ -54,6 +54,8 @@ public class GraphicsEngine {
     private final List<Pair<Integer, ImageDrawer>> recentlyRestored = new ArrayList<>();
     private final List<FallingImage> fallingImages = new ArrayList<>();
 
+    private TextDrawer gameOverText = new TextDrawer("", Color.WHITE, 196);
+
     public void streakLost() {
         fallingImages.add(new FallingImage(512, (float) (gc.getCanvas().getHeight() - 16), streakText, 0, 0, (float) ((random() - 0.5) * 40)));
         streakText = new TextDrawer("", Color.GOLD, 48);
@@ -62,6 +64,10 @@ public class GraphicsEngine {
     public void streakUpdated(float coefficient) {
         fallingImages.add(new FallingImage(512, (float) (gc.getCanvas().getHeight() - 16), streakText, (float) ((random() - 0.5) * 200), (float) (Math.random() + 1) * -200, (float) ((random() - 0.5) * 40)));
         streakText = new TextDrawer(String.format("x%.1f", coefficient), Color.GOLD, 48);
+    }
+
+    public void gameOver() {
+        gameOverText = new TextDrawer("Game Over", Color.LIGHTGRAY, 128);
     }
 
     private static class KeptImageDrawer{
@@ -127,6 +133,7 @@ public class GraphicsEngine {
         drawHearts(t);
         printScore(t);
         drawDamageAnimation(t);
+        drawGameOver(t);
     }
 
     private void drawDamageAnimation(float t) {
@@ -224,5 +231,11 @@ public class GraphicsEngine {
         gc.setTextAlign(TextAlignment.LEFT);
         gc.fillText("Score: " + informator.getScore(), 24, gc.getCanvas().getHeight() - 16);
         streakText.drawImage(gc, 512, (float) (gc.getCanvas().getHeight() - 16), t);
+    }
+
+    private void drawGameOver(float t){
+        if (informator.isGameOver()){
+            gameOverText.drawImage(gc, (float) (gc.getCanvas().getWidth() / 2), (float) (gc.getCanvas().getHeight() / 2), t);
+        }
     }
 }

@@ -173,7 +173,7 @@ public class GameEngine {
 
     private void gameOver(){
         gameOver = true;
-        System.out.println("Game over");
+        informable.gameOver();
     }
 
     public boolean isGameOver(){

@@ -14,4 +14,6 @@ public interface Informable {
     void healthRestored(int health);
 
     void healthLost(int health, DamageCause damageCause);
+
+    void gameOver();
 }

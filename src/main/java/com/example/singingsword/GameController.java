@@ -23,6 +23,11 @@ public class GameController implements Informable, Informator {
         graphicsEngine.healthLost(health, cause);
     }
 
+    @Override
+    public void gameOver() {
+        graphicsEngine.gameOver();
+    }
+
     public void healthRestored(int health) {
         graphicsEngine.healthRestored(health);
     }
