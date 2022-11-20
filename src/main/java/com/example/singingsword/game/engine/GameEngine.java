@@ -9,10 +9,7 @@ import javafx.beans.property.*;
 
 import javax.sound.sampled.*;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Deque;
-import java.util.List;
+import java.util.*;
 
 import static com.example.singingsword.game.engine.sound.Sound.SAMPLE_RATE;
 import static java.lang.Math.*;
@@ -70,12 +67,42 @@ public class GameEngine {
     public class ScoreManager {
         private int score = 0;
 
+        private final float streakMaxTime = 3f;
+        private float streakTime = 0f;
+        private int streak = 0;
+        private float streakCoefficient = 1f;
+
+        private final Map<Integer, Float> streakCoefficients = Map.of(
+                3, 1.5f,
+                5, 2f,
+                7, 3f
+        );
+
         public int getScore() {
             return score;
         }
 
+        public void tick(float dt) {
+            if (streakTime > 0) {
+                streakTime -= dt;
+                if (streakTime <= 0) {
+                    informable.streakLost();
+                    streak = 0;
+                    streakCoefficient = 1f;
+                }
+            }
+        }
+
         private void addScore(int score) {
-            this.score += score;
+            if(score > 0) {
+                streak += 1;
+                streakTime = streakMaxTime;
+                if(streakCoefficients.containsKey(streak)) {
+                    streakCoefficient = streakCoefficients.get(streak);
+                    informable.streakUpdated(streakCoefficient);
+                }
+                this.score += score * streakCoefficient;
+            }
         }
     }
     public final ScoreManager scoreManager = new ScoreManager();
@@ -211,6 +238,7 @@ public class GameEngine {
                 enemies.remove(i--);
             }
         }
+        scoreManager.tick(passed);
     }
     
     public void handle(long now){ // seconds

@@ -35,6 +35,16 @@ public class GameController implements Informable, Informator {
         graphicsEngine.enemyEscaped(enemy);
     }
 
+    @Override
+    public void streakLost() {
+        graphicsEngine.streakLost();
+    }
+
+    @Override
+    public void streakUpdated(float coefficient) {
+        graphicsEngine.streakUpdated(coefficient);
+    }
+
     public boolean isGameOver() {
         return gameEngine.isGameOver();
     }

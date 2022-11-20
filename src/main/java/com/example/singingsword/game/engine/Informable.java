@@ -8,6 +8,9 @@ public interface Informable {
     void enemyKilled(Enemy enemy);
     void enemyEscaped(Enemy enemy);
 
+    void streakLost();
+    void streakUpdated(float coefficient);
+
     void healthRestored(int health);
 
     void healthLost(int health, DamageCause damageCause);

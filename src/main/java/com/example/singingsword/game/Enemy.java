@@ -52,9 +52,9 @@ public class Enemy {
 
         giveScore = switch (type){
             case REGULAR,INFECTED -> switch (armorType){
-                case NONE -> 10;
-                case TOP,BOTTOM -> 15;
-                case STRONG_TOP,STRONG_BOTTOM -> 20;
+                case NONE -> 100;
+                case TOP,BOTTOM -> 150;
+                case STRONG_TOP,STRONG_BOTTOM -> 200;
                 case BOTH, STRONG_BOTH -> 0;
             };
             case HEALING -> 0;

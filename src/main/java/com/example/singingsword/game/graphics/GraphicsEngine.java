@@ -4,6 +4,7 @@ import com.example.singingsword.GameController;
 import com.example.singingsword.game.DamageCause;
 import com.example.singingsword.game.Enemy;
 import com.example.singingsword.game.graphics.images.ImageDrawer;
+import com.example.singingsword.game.graphics.images.TextDrawer;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -35,9 +36,21 @@ public class GraphicsEngine {
 
     private final ImageDrawer[] hearts = new ImageDrawer[maxHealth];
 
+    private TextDrawer streakText = new TextDrawer("", Color.GOLD, 48);
+
     private final List<Enemy> recentlyKilled = new ArrayList<>();
     private final List<Pair<Integer, ImageDrawer>> recentlyRestored = new ArrayList<>();
     private final List<FallingImage> fallingImages = new ArrayList<>();
+
+    public void streakLost() {
+        fallingImages.add(new FallingImage(512, (float) (gc.getCanvas().getHeight() - 16), streakText, 0, 0, (float) ((random() - 0.5) * 40)));
+        streakText = new TextDrawer("", Color.GOLD, 48);
+    }
+
+    public void streakUpdated(float coefficient) {
+        fallingImages.add(new FallingImage(512, (float) (gc.getCanvas().getHeight() - 16), streakText, (float) ((random() - 0.5) * 200), (float) (Math.random() + 1) * -200, (float) ((random() - 0.5) * 40)));
+        streakText = new TextDrawer(String.format("x%.1f", coefficient), Color.GOLD, 48);
+    }
 
     private static class KeptImageDrawer{
         public ImageDrawer imageDrawer;
@@ -98,7 +111,7 @@ public class GraphicsEngine {
         drawKeptImages(t);
         drawSword(t);
         drawHearts(t);
-        printScore();
+        printScore(t);
     }
 
     private void clearBackground() {
@@ -169,11 +182,12 @@ public class GraphicsEngine {
         }
     }
 
-    private void printScore(){
+    private void printScore(float t){
         gc.setFill(Color.LIGHTGRAY);
-        Font font = Font.loadFont(Objects.requireNonNull(GameController.class.getResource("fonts/pixeloid-font/PixeloidSansBold.ttf")).toString(), 48);
+        Font font = Font.loadFont(Objects.requireNonNull(GameController.class.getResource("fonts/pixeloid-font/PixeloidMono.ttf")).toString(), 48);
         gc.setFont(font);
-        gc.setTextAlign(TextAlignment.RIGHT);
-        gc.fillText("" + informator.getScore(), gc.getCanvas().getWidth() - 32, 128 + 48);
+        gc.setTextAlign(TextAlignment.LEFT);
+        gc.fillText("Score: " + informator.getScore(), 24, gc.getCanvas().getHeight() - 16);
+        streakText.drawImage(gc, 512, (float) (gc.getCanvas().getHeight() - 16), t);
     }
 }
